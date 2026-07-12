@@ -29,7 +29,7 @@ class PPOConfig:
     max_grad_norm: float = 0.5
     update_epochs: int = 4
     minibatch_size: int = 512
-    checkpoint_interval: int = 2
+    checkpoint_interval: int = 4
     opponent_pool_size: int = 16
     device: str = "cpu"
     seed: int = 1

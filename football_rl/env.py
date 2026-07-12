@@ -75,10 +75,10 @@ class Football2v2Env:
         return (2,)
 
     def reset(self) -> np.ndarray:
-        x = self.cfg.field_length * 0.25
-        y = self.cfg.field_width * 0.18
+        x = self.cfg.field_length * 0.0
+        y = self.cfg.field_width * 0.05
         base = np.array([[-x, -y], [-x, y], [x, -y], [x, y]], dtype=np.float32)
-        noise = self.rng.normal(0.0, 0.7, size=(4, 2)).astype(np.float32)
+        noise = self.rng.normal(0.0, 2, size=(4, 2)).astype(np.float32)
         self.player_pos = base + noise
         self.player_vel.fill(0.0)
         self.ball_pos = self.rng.normal(0.0, 2, size=2).astype(np.float32)

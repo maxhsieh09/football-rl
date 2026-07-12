@@ -43,10 +43,10 @@ class EntityTransformerActorCritic(nn.Module):
         num_entity_types: int,
         numeric_dim: int = 4,
         action_dim: int = 2,
-        hidden_dim: int = 32,
+        hidden_dim: int = 16,
         num_layers: int = 2,
         num_heads: int = 4,
-        numeric_sinusoidal_dim: int = 32,
+        numeric_sinusoidal_dim: int = 16,
     ):
         super().__init__()
         self.type_embedding = nn.Embedding(num_entity_types, hidden_dim)
