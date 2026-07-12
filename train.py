@@ -25,6 +25,9 @@ def main() -> None:
     args = parse_args()
     env = Football2v2Env(FootballConfig(), seed=args.seed)
     model = EntityTransformerActorCritic(num_entity_types=env.num_entity_types)
+    print(model)
+    print("Parameters:", sum(p.numel() for p in model.parameters() if p.requires_grad))
+    
     cfg = PPOConfig(
         total_updates=args.updates,
         rollout_steps=args.rollout_steps,
