@@ -36,7 +36,7 @@ class FootballConfig:
     concede_reward: float = -10.0
     out_reward: float = -1.0
     opponent_out_reward: float = 1.0
-    ball_approach_weight: float = 0.015
+    ball_approach_weight: float = 0.0
     ball_progress_weight: float = 0.15
     action_penalty_weight: float = 0.001
 

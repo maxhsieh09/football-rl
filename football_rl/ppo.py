@@ -25,7 +25,7 @@ class PPOConfig:
     learning_rate: float = 3e-4
     clip_ratio: float = 0.2
     value_coef: float = 0.5
-    entropy_coef: float = 0.01
+    entropy_coef: float = 0.001
     max_grad_norm: float = 0.5
     update_epochs: int = 4
     minibatch_size: int = 512
@@ -209,7 +209,14 @@ class SelfPlayPPOTrainer:
     def save_checkpoint(self, update: int) -> None:
         state = self._cpu_state_dict()
         self.opponent_pool.append(state)
-        torch.save({"update": update, "model": state}, self.checkpoint_dir / f"policy_{update:06d}.pt")
+        torch.save(
+            {
+                "update": update,
+                "model": state,
+                "model_type": getattr(self.model, "model_type", "unknown"),
+            },
+            self.checkpoint_dir / f"policy_{update:06d}.pt",
+        )
 
     def sample_opponent(self) -> None:
         if not self.opponent_pool:

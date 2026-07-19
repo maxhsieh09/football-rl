@@ -7,7 +7,7 @@ import re
 import numpy as np
 import torch
 
-from football_rl import Football2v2Env, FootballConfig, EntityTransformerActorCritic
+from football_rl import Football2v2Env, FootballConfig, build_actor_critic
 from football_rl.render import PygameFootballRenderer, RenderConfig
 
 
@@ -24,6 +24,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--render-fps", type=int, default=60)
     parser.add_argument("--render-every", type=int, default=1)
+    parser.add_argument("--model", choices=("auto", "transformer", "mlp"), default="auto")
     return parser.parse_args()
 
 
@@ -38,10 +39,12 @@ def latest_checkpoint(checkpoint_dir: Path) -> Path:
     return max(candidates, key=lambda item: item[0])[1]
 
 
-def load_policy(path: Path, env: Football2v2Env, device: str) -> EntityTransformerActorCritic:
+def load_policy(path: Path, env: Football2v2Env, device: str, model_type: str):
     checkpoint = torch.load(path, map_location=device)
     state_dict = checkpoint["model"] if isinstance(checkpoint, dict) and "model" in checkpoint else checkpoint
-    model = EntityTransformerActorCritic(num_entity_types=env.num_entity_types).to(device)
+    if model_type == "auto":
+        model_type = checkpoint.get("model_type", "transformer") if isinstance(checkpoint, dict) else "transformer"
+    model = build_actor_critic(model_type, num_entity_types=env.num_entity_types, num_entities=env.num_entities).to(device)
     model.load_state_dict(state_dict)
     model.eval()
     return model
@@ -50,7 +53,7 @@ def load_policy(path: Path, env: Football2v2Env, device: str) -> EntityTransform
 @torch.no_grad()
 def run_episode(
     env: Football2v2Env,
-    model: EntityTransformerActorCritic,
+    model,
     renderer: PygameFootballRenderer,
     device: str,
 ) -> dict[str, object]:
@@ -61,7 +64,7 @@ def run_episode(
 
     while not done and not renderer.closed:
         obs_tensor = torch.as_tensor(obs, dtype=torch.float32, device=device)
-        actions, _, _ = model.act(obs_tensor, deterministic=False)
+        actions, _, _ = model.act(obs_tensor, deterministic=True)
         obs, rewards, done, info = env.step(actions.cpu().numpy())
         team_returns[0] += float(rewards[:2].mean())
         team_returns[1] += float(rewards[2:].mean())
@@ -80,7 +83,7 @@ def main() -> None:
     args = parse_args()
     checkpoint_path = args.checkpoint or latest_checkpoint(args.checkpoint_dir)
     env = Football2v2Env(FootballConfig(max_steps=args.max_steps), seed=args.seed)
-    model = load_policy(checkpoint_path, env, args.device)
+    model = load_policy(checkpoint_path, env, args.device, args.model)
     renderer = PygameFootballRenderer(
         env,
         RenderConfig(fps=args.render_fps, render_every=args.render_every, enabled=True),

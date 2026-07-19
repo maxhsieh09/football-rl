@@ -24,6 +24,13 @@ pip install -r requirements.txt
 python train.py --updates 200 --rollout-steps 2048
 ```
 
+Choose the policy architecture:
+
+```bash
+python train.py --model transformer
+python train.py --model mlp
+```
+
 Enable visualization:
 
 ```bash
@@ -44,6 +51,12 @@ Run visual inference with the latest checkpoint loaded for both teams:
 
 ```bash
 python inference_test.py --episodes 5
+```
+
+`inference_test.py` reads the model type from newer checkpoints. For older checkpoints, it defaults to `transformer`; override it when needed:
+
+```bash
+python inference_test.py --model mlp --checkpoint checkpoints/policy_000010.pt
 ```
 
 Manually test the environment:

@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import argparse
 
-import torch
-
-from football_rl import Football2v2Env, FootballConfig, EntityTransformerActorCritic, PPOConfig, SelfPlayPPOTrainer
+from football_rl import Football2v2Env, FootballConfig, PPOConfig, SelfPlayPPOTrainer, build_actor_critic
 from football_rl.render import PygameFootballRenderer, RenderConfig
 
 
@@ -18,13 +16,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--visualize", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--render-every", type=int, default=1)
     parser.add_argument("--render-fps", type=int, default=60)
+    parser.add_argument("--model", choices=("transformer", "mlp"), default="transformer")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
     env = Football2v2Env(FootballConfig(), seed=args.seed)
-    model = EntityTransformerActorCritic(num_entity_types=env.num_entity_types)
+    model = build_actor_critic(args.model, num_entity_types=env.num_entity_types, num_entities=env.num_entities)
     print(model)
     print("Parameters:", sum(p.numel() for p in model.parameters() if p.requires_grad))
     
