@@ -25,11 +25,11 @@ class PPOConfig:
     learning_rate: float = 3e-4
     clip_ratio: float = 0.2
     value_coef: float = 0.5
-    entropy_coef: float = 0.001
+    entropy_coef: float = 0.002
     max_grad_norm: float = 0.5
     update_epochs: int = 4
-    minibatch_size: int = 512
-    checkpoint_interval: int = 4
+    minibatch_size: int = 2048
+    checkpoint_interval: int = 32
     opponent_pool_size: int = 16
     device: str = "cpu"
     seed: int = 1

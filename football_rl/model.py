@@ -143,6 +143,7 @@ class MLPActorCritic(SquashedGaussianActorCritic):
         self.actor = nn.Linear(hidden_dim, action_dim)
         self.critic = nn.Linear(hidden_dim, 1)
         self.log_std = nn.Parameter(torch.full((action_dim,), 0.))
+        #self.log_std = nn.Linear(hidden_dim, action_dim)
 
     def forward(self, obs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         x = obs.flatten(start_dim=1)
@@ -150,6 +151,7 @@ class MLPActorCritic(SquashedGaussianActorCritic):
         mean = self.actor(x)
         value = self.critic(x).squeeze(-1)
         std = self.log_std.exp().expand_as(mean)
+        #std = self.log_std(x).exp()
         return mean, std, value
 
 

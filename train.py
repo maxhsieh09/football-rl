@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import time
 
 from football_rl import Football2v2Env, FootballConfig, PPOConfig, SelfPlayPPOTrainer, build_actor_critic
 from football_rl.render import PygameFootballRenderer, RenderConfig
@@ -8,7 +9,7 @@ from football_rl.render import PygameFootballRenderer, RenderConfig
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train 2v2 football self-play PPO.")
-    parser.add_argument("--updates", type=int, default=200)
+    parser.add_argument("--updates", type=int, default=1000)
     parser.add_argument("--rollout-steps", type=int, default=2048)
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--seed", type=int, default=1)
@@ -41,7 +42,11 @@ def main() -> None:
             RenderConfig(fps=args.render_fps, render_every=args.render_every, enabled=True),
         )
     trainer = SelfPlayPPOTrainer(env, model, cfg, renderer=renderer)
+    start_time = time.time()
     trainer.train()
+
+    end_time = time.time()
+    print(f"Training time: {end_time - start_time:.2f} seconds")
 
 
 if __name__ == "__main__":
